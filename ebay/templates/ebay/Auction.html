@@ -49,59 +49,23 @@ type="button"  value="Finish bidding">
 
 
 {% block scripts %}
-<!-- <script type="text/javascript" src="/static/otree/js/jquery.countdown.js"></script>-->
+
 <script>
-  
-  <!--
-  var milliseconds = {{time_left}}*1000;
-  -->
+
+
   var winner = 'You are the highest bidder right now';
   var loser = 'You are NOT the highest bidder right now!';
-  
-  <!--
-  update_create_countdown(milliseconds);
 
-  function update_create_countdown(milliseconds) {
-            $('div#otree-timeout').show();
-            var currentDate = new Date();
 
-            $('#otree-timeout').countdown(currentDate.valueOf() + milliseconds, function(event) {
 
-                switch(event.type) {
-                    case "seconds":
-                        $(this).find('span#seconds').html(event.value);
-                        break;
-                    case "minutes":
-                        $(this).find('span#minutes').html(event.lasting.hours * 60 + parseInt(event.value));
-                        break;
-                    case "finished":
-                        $('#otree-timeout').hide(duration=0);
-                        $('<input>').attr({
-                            type: 'hidden',
-                            name: 'auto_submit',
-                            value: '1'
-                        }).appendTo('form');
-                        $('#form').submit();
-
-                        break;
-                }
-            });
-  };
-  -->
-
-<!--
-function curtime() {
-    return (new Date().getTime());
-}
--->
 
 window.onload = function() {
-  <!-- $('#curdate').html(curtime());-->
+
   var curprice = {{group.second_price}}
   $('#displayed_price').html(curprice);
   curbtntxt = curprice>0?'Raise bid':'Bid';
      $('#button_bid').prop('value', curbtntxt);
-     
+
 
   var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
   var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ebay/group{{group.id}}");
@@ -111,11 +75,11 @@ window.onload = function() {
   socket.onerror = function(error) {
     console.log('WebSocket Error: ' + error);
   };
-  
+
 
 
 sendmessage = function(what) {
-  <!-- alert(document.getElementById("player_bid_field").value);-->
+
   var msg = {
           id: {{player.id}},
           id_in_group: {{player.id_in_group}},
@@ -124,20 +88,11 @@ sendmessage = function(what) {
       if(socket.readyState === socket.OPEN){
           socket.send(JSON.stringify(msg));
       }
-  <!-- socket.send('{{player.id}}');-->
+
 }
 
 sendproceed = function(what) {
-  <!-- alert(document.getElementById("player_bid_field").value);-->
-  var msg = {
-          id: {{player.id}},
-          id_in_group: {{player.id_in_group}},
-          cur_player_bid: document.getElementById("player_bid_field").value,
-      };
-      if(socket.readyState === socket.OPEN){
-          socket.send(JSON.stringify(msg));
-      }
-  <!-- socket.send('{{player.id}}');-->
+
 }
 
   // Show a connected message when the WebSocket is opened.
@@ -151,16 +106,13 @@ sendproceed = function(what) {
     var obj = jQuery.parseJSON(event.data);
     curprice = obj.price;
     $('#displayed_price').html(curprice);
-    <!-- curbtntxt = curprice>0?'Raise price':'Buy'; -->
+
     curbtntxt = curprice>0?'Raise bid':'Bid';
     $('#button_bid').prop('value', curbtntxt);
-    <!-- $('#dateend').html(obj.newauctionendtime);-->
-    <!-- $('#time_left').html(obj.time_left);-->
+
     curwinner = obj.winner=={{player.id_in_group}}? winner:loser;
     $('#winner').html(curwinner);
-    <!-- milliseconds = obj.time_left*1000;-->
-    <!-- selectedDate = new Date().valueOf() + milliseconds;-->
-    <!-- update_create_countdown(milliseconds);-->
+
   };
 
 

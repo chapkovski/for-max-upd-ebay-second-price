@@ -31,25 +31,12 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    first_price = models.IntegerField(initial=0)
-    second_price = models.IntegerField(initial=0)
-    auctionstartdate = models.FloatField()
-    auctionenddate = models.FloatField()
-    buyer = models.IntegerField()
+    price = models.IntegerField()
+    winner = models.IntegerField()
 
-#     def time_left(self):
-#             now = time.time()
-#             time_left = self.auctionenddate - now
-#             time_left = round(time_left) if time_left > 0 else 0
-#             return time_left
 
     def set_payoffs(self):
-        for p in self.get_players():
-            if str(self.buyer) == str(p.id_in_group):
-                p.payoff = Constants.endowment - self.second_price + Constants.prize
-            else:
-                p.payoff = Constants.endowment
+        ...
 
 class Player(BasePlayer):
-    ...
-    # buyer = models.BooleanField()
+    price = models.IntegerField()
