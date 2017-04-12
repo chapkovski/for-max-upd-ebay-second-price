@@ -20,16 +20,32 @@ def ws_message(message, group_name):
     mygroup = OtreeGroup.objects.get(id=group_id)
     curbuyer_id = jsonmessage['id']
     curbuyer_id_in_group = jsonmessage['id_in_group']
-    mygroup.price += 10
-    mygroup.buyer = curbuyer_id_in_group
-    now = time.time()
-    mygroup.auctionenddate = now + Constants.extra_time
+    cur_player_bid = int(jsonmessage['cur_player_bid'])
+    # Logic to handle the bids
+    if cur_player_bid > Constants.endowment:
+        # Can't bid more than you have
+        pass # Show message somehow?
+    else:
+        if False: # Check here if player bid more (change to True) than his current maximum bid
+            pass # Show message that he can only raise his bid
+        else:
+            if cur_player_bid <= mygroup.second_price:
+                pass # Do nothing, your bid is too low
+            elif cur_player_bid > mygroup.second_price and cur_player_bid <= mygroup.first_price:
+                mygroup.second_price = cur_player_bid
+            else:
+                mygroup.second_price = mygroup.first_price
+                mygroup.first_price = cur_player_bid
+                curbuyer_id = jsonmessage['id']
+                curbuyer_id_in_group = jsonmessage['id_in_group']
+    # now = time.time()
+    # mygroup.auctionenddate = now + Constants.extra_time
     mygroup.save()
-    time_left = round(mygroup.auctionenddate - now)
+    # time_left = round(mygroup.auctionenddate - now)
     textforgroup = json.dumps({
-                                "price": mygroup.price,
-                                "newauctionendtime": mygroup.auctionenddate,
-                                "time_left": time_left,
+                                "price": mygroup.second_price,
+                                #"newauctionendtime": mygroup.auctionenddate,
+                                #"time_left": time_left,
                                 "winner": curbuyer_id_in_group,
                                 })
     Group(group_name).send({

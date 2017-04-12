@@ -15,10 +15,10 @@ ebay auction example
 
 class Constants(BaseConstants):
     name_in_url = 'ebay'
-    players_per_group = 3
+    players_per_group = 2
     num_rounds = 1
-    starting_time = 30
-    extra_time = 20
+    # starting_time = 30
+    # extra_time = 20
     endowment = 100
     prize = 200
     num_others = players_per_group - 1
@@ -31,21 +31,22 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    price = models.IntegerField()
+    first_price = models.IntegerField(initial=0)
+    second_price = models.IntegerField(initial=0)
     auctionstartdate = models.FloatField()
     auctionenddate = models.FloatField()
     buyer = models.IntegerField()
 
-    def time_left(self):
-            now = time.time()
-            time_left = self.auctionenddate - now
-            time_left = round(time_left) if time_left > 0 else 0
-            return time_left
+#     def time_left(self):
+#             now = time.time()
+#             time_left = self.auctionenddate - now
+#             time_left = round(time_left) if time_left > 0 else 0
+#             return time_left
 
     def set_payoffs(self):
         for p in self.get_players():
             if str(self.buyer) == str(p.id_in_group):
-                p.payoff = Constants.endowment - self.price + Constants.prize
+                p.payoff = Constants.endowment - self.second_price + Constants.prize
             else:
                 p.payoff = Constants.endowment
 
