@@ -12,25 +12,35 @@
   You are competing with <b>{{Constants.num_others}}</b> other  participants for a prize of
   <b>{{Constants.prize}}</b>.
 </p>
-<p>A person who offers the highest price will get the prize. </p>
+<p>The person who places the highest bid will get the item, and pay the amount of the second highest bid. </p>
 <p>
   You have <b>{{Constants.endowment}}</b> to spend in this auction.
 </p>
 
+<!--
 <p>
   Each click on the button will raise the price that you will pay by 10 points.
 </p>
 <p>
-  All other participants have <b>{{Constants.extra_time}}</b> seconds to increase the price.</b>
+  After a player places a bid the timer is reset, so that all players have <b>{{Constants.extra_time}}</b> seconds to react.</b>
 </p>
 </div>
+-->
 
+<!--
 <div id="otree-timeout">Time left to the end of the auction: <span id="minutes"></span>:<span id="seconds"></span></div>
-<div>current price: <b><span id="price"></span></b></div>
+-->
+
 <div id="winner"></div>
-<input id='ebaybtn'
+<div>Current price: <b><span id="displayed_price"></span></b></div>
+<input id="player_bid_field" type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' name="FirstName">
+<input id='button_bid'
 class="btn  btn-large btn-primary next-button" onclick='sendmessage()'
 type="button"  value="sBuy">
+<br>
+<input id='button_next'
+class="btn  btn-large btn-primary next-button" onclick='sendproceed()'
+type="button"  value="Finish bidding">
 <br>
 
 
@@ -39,11 +49,16 @@ type="button"  value="sBuy">
 
 
 {% block scripts %}
-<script type="text/javascript" src="/static/otree/js/jquery.countdown.js"></script>
+<!-- <script type="text/javascript" src="/static/otree/js/jquery.countdown.js"></script>-->
 <script>
+  
+  <!--
   var milliseconds = {{time_left}}*1000;
-  var winner = 'You are the largest bidder right now';
-  var loser = 'You are NOT the largest bidder right now!';
+  -->
+  var winner = 'You are the highest bidder right now';
+  var loser = 'You are NOT the highest bidder right now!';
+  
+  <!--
   update_create_countdown(milliseconds);
 
   function update_create_countdown(milliseconds) {
@@ -72,18 +87,21 @@ type="button"  value="sBuy">
                 }
             });
   };
+  -->
 
-
+<!--
 function curtime() {
     return (new Date().getTime());
 }
+-->
 
 window.onload = function() {
-  $('#curdate').html(curtime());
-  var curprice = {{group.price}}
-  $('#price').html(curprice);
-  curbtntxt = curprice>0?'Raise price':'Buy';
-     $('#ebaybtn').prop('value', curbtntxt);
+  <!-- $('#curdate').html(curtime());-->
+  var curprice = {{group.second_price}}
+  $('#displayed_price').html(curprice);
+  curbtntxt = curprice>0?'Raise bid':'Bid';
+     $('#button_bid').prop('value', curbtntxt);
+     
 
   var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
   var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/ebay/group{{group.id}}");
@@ -93,18 +111,35 @@ window.onload = function() {
   socket.onerror = function(error) {
     console.log('WebSocket Error: ' + error);
   };
+  
+
 
 sendmessage = function(what) {
+  <!-- alert(document.getElementById("player_bid_field").value);-->
   var msg = {
           id: {{player.id}},
           id_in_group: {{player.id_in_group}},
+          cur_player_bid: document.getElementById("player_bid_field").value,
       };
       if(socket.readyState === socket.OPEN){
           socket.send(JSON.stringify(msg));
       }
-  //  socket.send('{{player.id}}');
-
+  <!-- socket.send('{{player.id}}');-->
 }
+
+sendproceed = function(what) {
+  <!-- alert(document.getElementById("player_bid_field").value);-->
+  var msg = {
+          id: {{player.id}},
+          id_in_group: {{player.id_in_group}},
+          cur_player_bid: document.getElementById("player_bid_field").value,
+      };
+      if(socket.readyState === socket.OPEN){
+          socket.send(JSON.stringify(msg));
+      }
+  <!-- socket.send('{{player.id}}');-->
+}
+
   // Show a connected message when the WebSocket is opened.
   socket.onopen = function(event) {
     console.log('connected to oTree');
@@ -115,16 +150,17 @@ sendmessage = function(what) {
   socket.onmessage = function(event) {
     var obj = jQuery.parseJSON(event.data);
     curprice = obj.price;
-    $('#price').html(curprice);
-    curbtntxt = curprice>0?'Raise price':'Buy';
-    $('#ebaybtn').prop('value', curbtntxt);
-    $('#dateend').html(obj.newauctionendtime);
-    $('#time_left').html(obj.time_left);
+    $('#displayed_price').html(curprice);
+    <!-- curbtntxt = curprice>0?'Raise price':'Buy'; -->
+    curbtntxt = curprice>0?'Raise bid':'Bid';
+    $('#button_bid').prop('value', curbtntxt);
+    <!-- $('#dateend').html(obj.newauctionendtime);-->
+    <!-- $('#time_left').html(obj.time_left);-->
     curwinner = obj.winner=={{player.id_in_group}}? winner:loser;
     $('#winner').html(curwinner);
-    milliseconds = obj.time_left*1000;
-    selectedDate = new Date().valueOf() + milliseconds;
-    update_create_countdown(milliseconds);
+    <!-- milliseconds = obj.time_left*1000;-->
+    <!-- selectedDate = new Date().valueOf() + milliseconds;-->
+    <!-- update_create_countdown(milliseconds);-->
   };
 
 
@@ -135,6 +171,7 @@ sendmessage = function(what) {
 
 
 };
+
 
 </script>
 {% endblock %}
